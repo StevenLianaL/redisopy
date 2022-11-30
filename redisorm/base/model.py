@@ -13,7 +13,9 @@ class ModelMeta(type):
 
 
 class BaseModel(metaclass=ModelMeta):
+    """基础操作，主实例方法，用于继承"""
     keys = set()  # field set
+    _key: str = ''
 
     class Meta:
         # key_prefix
@@ -27,8 +29,10 @@ class BaseModel(metaclass=ModelMeta):
     def __str__(self):
         return f"{self.__class__.__name__}{str(self.fields)}"
 
-    def save(self):
-        self.conn.hset(self.key, mapping=self.fields)
+    def save(self, ex: int = 0):
+        self.conn().hset(self.key, mapping=self.fields)
+        if ex:
+            self.conn().expire(self.key, ex)
 
     def create(self, **kwargs):
         pass
@@ -44,13 +48,15 @@ class BaseModel(metaclass=ModelMeta):
 
     @property
     def key(self) -> str:
-        prefix = self.key_prefix
-        keys = self.conn.keys(f"{prefix}:*")
-        ids = [int(key.split(":")[-1]) for key in keys]
-        new_id = max(ids) + 1 if ids else 1
-        return f"{prefix}:{new_id}"
+        if not self._key:
+            prefix = self.key_prefix
+            keys = self.conn().keys(f"{prefix}:*")
+            ids = [int(key.split(":")[-1]) for key in keys]
+            new_id = max(ids) + 1 if ids else 1
+            self._key = f"{prefix}:{new_id}"
+        return self._key
 
-    @property
+    @classmethod
     def conn(self) -> StrictRedis:
         return DEFAULT_CONNECTION[0]
 

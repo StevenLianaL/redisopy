@@ -14,7 +14,6 @@ def test_use_model():
             key_prefix = "UpUp:person:"
 
     person = Person(name='John', age=20)
-
     person.age = 30
     person.save()
 
