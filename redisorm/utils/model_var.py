@@ -13,6 +13,7 @@ class ModelClassVar:
     cls_name: str = ""
     meta: Any = None
     keys: Set[str] = field(default_factory=set)
+    model_fields: dict = field(default_factory=dict)
 
     def __hash__(self):
         return hash(self.cls_name, random.randint(0, 100))

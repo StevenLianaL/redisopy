@@ -3,15 +3,6 @@ from redisorm.fields import StringField, IntField, BooleanField
 from redisorm.models import Model
 
 
-class Person(Model):
-    name = StringField()
-    age = IntField()
-    is_active = BooleanField()
-
-    class Meta:
-        key_prefix = "UpUp:person:"
-
-
 class Person2(Model):
     name = StringField()
     age = IntField()
@@ -29,6 +20,14 @@ connect(db=3)
 
 
 def test_use_model():
+    class Person(Model):
+        name = StringField()
+        age = IntField()
+        is_active = BooleanField()
+
+        class Meta:
+            key_prefix = "UpUp:person:"
+
     person = Person(name='John', age=20, is_active=True)
     person.save()
     person2 = Person(name='John', age=20, is_active=False)
@@ -43,15 +42,15 @@ def test_use_model():
 
 
 def test_instance_delete():
-    person = Person(name='John', age=20)
+    person = Person2(name='John', age=20)
     person.save()
     person.delete()
 
 
 def test_get_instance():
-    person = Person(name='test', age=99)
+    person = Person2(name='test', age=99)
     person.save()
-    person2 = Person.get_by_id(r_id=person.record_id)
+    person2 = Person2.get_by_id(r_id=person.record_id)
     print(person2)
 
 

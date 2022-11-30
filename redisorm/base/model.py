@@ -3,11 +3,14 @@ from redisorm.utils.model_var import ModelClassVar
 
 
 class ModelMeta(type):
+    model_fields = {}
+
     def __new__(cls, name, bases, attrs):
+        attrs["class_var"] = ModelClassVar(cls_name=name, meta=attrs.get("Meta", None))
         for key, value in attrs.items():
             if isinstance(value, BaseField):
                 setattr(cls, key, value)
-        attrs["class_var"] = ModelClassVar(cls_name=name, meta=attrs.get("Meta", None))
+                attrs["class_var"].model_fields[key] = value
         return super().__new__(cls, name, bases, attrs)
 
     class Meta:
@@ -36,13 +39,7 @@ class BaseModel(metaclass=ModelMeta):
         return str(self)
 
     def save(self, ex: int = 0) -> int:
-        save_data = {}
-        for k, v in self.fields.items():
-            if isinstance(v, bool):
-                save_data[k] = '1' if v else ''
-            else:
-                save_data[k] = v
-        self.class_var.conn.hset(self.key, mapping=save_data)
+        self.class_var.conn.hset(self.key, mapping=self.redis_data)
         if ex:
             self.class_var.conn.expire(self.key, ex)
         return self.record_id
@@ -76,4 +73,11 @@ class BaseModel(metaclass=ModelMeta):
         data = {}
         for k in self.class_var.keys:
             data[k] = getattr(self, k)
+        return data
+
+    @property
+    def redis_data(self):
+        data = {}
+        for k, v in self.class_var.model_fields.items():
+            data[k] = v.from_py_to_redis(getattr(self, k))
         return data

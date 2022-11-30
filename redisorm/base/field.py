@@ -29,3 +29,6 @@ class BaseField:
     @abstractmethod
     def from_redis_to_py(self, value):
         return NotImplemented
+
+    def from_py_to_redis(self, value):
+        return str(value)
