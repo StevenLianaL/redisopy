@@ -1,7 +1,5 @@
-from redis.client import StrictRedis
-
 from redisorm.base.field import BaseField
-from redisorm.connection import DEFAULT_CONNECTION
+from redisorm.utils.model_var import ModelClassVar
 
 
 class ModelMeta(type):
@@ -13,56 +11,49 @@ class ModelMeta(type):
 
 
 class BaseModel(metaclass=ModelMeta):
-    """基础操作，主实例方法，用于继承"""
-    keys = set()  # field set
-    _key: str = ''
+    """
+    基础操作，主要是实例方法
+    @property 标记的都是实例变量
+    """
+    class_var = ModelClassVar()
+    _key: str = ""  # redis instance key
 
     class Meta:
         # key_prefix
         pass
 
     def __init__(self, **kwargs):
+        self.class_var.meta = getattr(self, "Meta", None)
         for key, value in kwargs.items():
-            self.keys.add(key)
+            self.class_var.keys.add(key)
             setattr(self, key, value)
 
     def __str__(self):
         return f"{self.__class__.__name__}{str(self.fields)}"
 
     def save(self, ex: int = 0):
-        self.conn().hset(self.key, mapping=self.fields)
+        self.class_var.conn.hset(self.key, mapping=self.fields)
         if ex:
-            self.conn().expire(self.key, ex)
-
-    def create(self, **kwargs):
-        pass
-
-    @property
-    def key_prefix(self) -> str:
-        meta = getattr(self, "Meta", None)
-        if meta:
-            key_prefix = getattr(meta, "key_prefix", self.__class__.__name__.lower())
-        else:
-            key_prefix = self.__class__.__name__.lower()
-        return key_prefix
+            self.class_var.conn.expire(self.key, ex)
 
     @property
     def key(self) -> str:
         if not self._key:
-            prefix = self.key_prefix
-            keys = self.conn().keys(f"{prefix}:*")
+            prefix = self.class_var.key_prefix
+            keys = self.class_var.conn.keys(f"{prefix}:*")
             ids = [int(key.split(":")[-1]) for key in keys]
             new_id = max(ids) + 1 if ids else 1
             self._key = f"{prefix}:{new_id}"
         return self._key
 
-    @classmethod
-    def conn(self) -> StrictRedis:
-        return DEFAULT_CONNECTION[0]
+    @key.setter
+    def key(self, value: str):
+        self._key = value
 
+    @classmethod
     @property
     def fields(self):
         data = {}
-        for k in self.keys:
+        for k in self.class_var.keys:
             data[k] = getattr(self, k)
         return data
