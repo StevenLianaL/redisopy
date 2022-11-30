@@ -1,10 +1,11 @@
 from typing import Set
 
 from redisorm.base.model import BaseModel
+from redisorm.errors import NoSuchIdError
 
 
 class Model(BaseModel):
-    """增删改查"""
+    """增删改查, id 自动生成，不要加 id 字段"""
 
     @classmethod
     def filter(cls, include: Set[str] = None, exclude: Set[str] = None, **kwargs):
@@ -14,7 +15,7 @@ class Model(BaseModel):
         :return:
         """
         conn = cls.class_var.conn
-        keys = conn.keys(f"{cls.class_var.key_prefix}:*")
+        keys = conn.keys(f"{cls.class_var.key_prefix}*")
         res = []
         for key in keys:
             is_match = True
@@ -26,8 +27,6 @@ class Model(BaseModel):
             else:
                 row = conn.hgetall(key)
 
-            row['id'] = int(key.split(":")[-1])
-
             for k, v in kwargs.items():
                 if row[k] != v:
                     is_match = False
@@ -35,3 +34,13 @@ class Model(BaseModel):
             if is_match:
                 res.append(cls(**row))
         return res
+
+    @classmethod
+    def get_by_id(cls, r_id: int):
+        conn = cls.class_var.conn
+        key = f"{cls.class_var.key_prefix}{r_id}"
+        row = conn.hgetall(key)
+        if row:
+            return cls(**row)
+        else:
+            raise NoSuchIdError(f"{cls.class_var.cls_name} No such id: {r_id}")

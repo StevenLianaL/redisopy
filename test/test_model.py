@@ -35,7 +35,7 @@ def test_use_model():
     person2.save()
     person3 = Person3(name='John', age=20)
     person3.save()
-    rows = Person.filter(name='John')
+    rows = Person.filter()
     for r in rows:
         print(r)
 
@@ -44,3 +44,10 @@ def test_instance_delete():
     person = Person(name='John', age=20)
     person.save()
     person.delete()
+
+
+def test_get_instance():
+    person = Person(name='test', age=99)
+    person.save()
+    person2 = Person.get_by_id(r_id=person.record_id)
+    print(person2)

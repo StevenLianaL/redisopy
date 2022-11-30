@@ -1,0 +1,2 @@
+class NoSuchIdError(Exception):
+    pass

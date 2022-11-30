@@ -14,9 +14,6 @@ class ModelClassVar:
     meta: Any = None
     keys: Set[str] = field(default_factory=set)
 
-    def __post_init__(self):
-        self.keys.add("id")
-
     def __hash__(self):
         return hash(self.cls_name, random.randint(0, 100))
 

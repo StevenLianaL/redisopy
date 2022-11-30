@@ -21,7 +21,7 @@ class BaseModel(metaclass=ModelMeta):
     @property 标记的都是实例变量
     """
     class_var = None
-    _id: int = None
+    _record_id: int = None
     _key: str = ""  # redis instance key
 
     def __init__(self, **kwargs):
@@ -35,33 +35,34 @@ class BaseModel(metaclass=ModelMeta):
     def __repr__(self):
         return str(self)
 
-    def save(self, ex: int = 0):
+    def save(self, ex: int = 0) -> int:
         self.class_var.conn.hset(self.key, mapping=self.fields)
         if ex:
             self.class_var.conn.expire(self.key, ex)
+        return self.record_id
 
     def delete(self):
         self.class_var.conn.delete(self.key)
 
     @property
-    def id(self):
-        return self._id
+    def record_id(self):
+        return self._record_id
 
-    @id.setter
-    def id(self, value: int):
-        self._id = value
+    @record_id.setter
+    def record_id(self, value: int):
+        self._record_id = value
 
     @property
     def key(self) -> str:
         if not self._key:
             prefix = self.class_var.key_prefix
-            if self.id:
-                self._key = f"{prefix}{self.id}"
+            if self.record_id:
+                self._key = f"{prefix}{self.record_id}"
             else:
                 keys = self.class_var.conn.keys(f"{prefix}*")
                 ids = [int(key.split(":")[-1]) for key in keys]
-                self.id = max(ids) + 1 if ids else 1
-                self._key = f"{prefix}{self.id}"
+                self.record_id = max(ids) + 1 if ids else 1
+                self._key = f"{prefix}{self.record_id}"
         return self._key
 
     @property
