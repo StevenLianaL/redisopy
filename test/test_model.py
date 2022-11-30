@@ -13,9 +13,14 @@ def test_use_model():
         class Meta:
             key_prefix = "UpUp:person:"
 
+    class Person2(Model):
+        name = StringField()
+
     person = Person(name='John', age=20)
+    p2 = Person2(name='John')
     person.age = 30
     person.save()
+    p2.save()
 
 
 def test_a():

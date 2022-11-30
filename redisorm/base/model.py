@@ -15,7 +15,7 @@ class BaseModel(metaclass=ModelMeta):
     基础操作，主要是实例方法
     @property 标记的都是实例变量
     """
-    class_var = ModelClassVar()
+    class_var = None
     _key: str = ""  # redis instance key
 
     class Meta:
@@ -23,7 +23,7 @@ class BaseModel(metaclass=ModelMeta):
         pass
 
     def __init__(self, **kwargs):
-        self.class_var.meta = getattr(self, "Meta", None)
+        self.class_var = ModelClassVar(cls=self.__class__, meta=getattr(self, "Meta", None))
         for key, value in kwargs.items():
             self.class_var.keys.add(key)
             setattr(self, key, value)
@@ -40,7 +40,7 @@ class BaseModel(metaclass=ModelMeta):
     def key(self) -> str:
         if not self._key:
             prefix = self.class_var.key_prefix
-            keys = self.class_var.conn.keys(f"{prefix}:*")
+            keys = self.class_var.conn.keys(f"{prefix}*")
             ids = [int(key.split(":")[-1]) for key in keys]
             new_id = max(ids) + 1 if ids else 1
             self._key = f"{prefix}:{new_id}"
@@ -50,7 +50,6 @@ class BaseModel(metaclass=ModelMeta):
     def key(self, value: str):
         self._key = value
 
-    @classmethod
     @property
     def fields(self):
         data = {}
