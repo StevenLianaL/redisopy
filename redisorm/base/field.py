@@ -1,10 +1,12 @@
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, Any
 
 
 @dataclass
 class BaseField:
     _counter: ClassVar[int] = 0
+    required: bool = False
+    default: Any = None
     verbose_name: str = ''
     help_text: str = ''
 
