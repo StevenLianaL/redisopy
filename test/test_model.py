@@ -1,16 +1,22 @@
+from redisorm.connection import connect
 from redisorm.fields import StringField, IntField
 from redisorm.models import Model
 
 
 def test_use_model():
+    connect(db=3)
+
     class Person(Model):
         name = StringField()
         age = IntField()
 
+        class Meta:
+            key_prefix = "UpUp:person:"
+
     person = Person(name='John', age=20)
 
     person.age = 30
-    print(person)
+    person.save()
 
 
 def test_a():

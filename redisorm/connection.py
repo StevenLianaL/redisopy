@@ -9,9 +9,11 @@ DEFAULT_CONNECTION: list[StrictRedis] = []
 
 
 def connect(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT, db: int = DEFAULT_DB):
-    """Use to connect redis."""
-    if DEFAULT_CONNECTION:
-        return DEFAULT_CONNECTION[0]
-    else:
+    """
+    Use to connect redis.
+    Exist a default link, can be overide.
+    """
+    if not DEFAULT_CONNECTION:
         redis = StrictRedis(host=host, port=port, db=db, decode_responses=True)
         DEFAULT_CONNECTION.append(redis)
+    return DEFAULT_CONNECTION[0]

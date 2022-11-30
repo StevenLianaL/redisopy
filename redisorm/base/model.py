@@ -1,4 +1,7 @@
+from redis.client import StrictRedis
+
 from redisorm.base.field import BaseField
+from redisorm.connection import DEFAULT_CONNECTION
 
 
 class ModelMeta(type):
@@ -10,8 +13,11 @@ class ModelMeta(type):
 
 
 class BaseModel(metaclass=ModelMeta):
-    cls_name: str = ""
     keys = set()  # field set
+
+    class Meta:
+        # key_prefix
+        pass
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -19,16 +25,38 @@ class BaseModel(metaclass=ModelMeta):
             setattr(self, key, value)
 
     def __str__(self):
-        data = {}
-        for k in self.keys:
-            data[k] = getattr(self, k)
-        return f"{self.__class__.__name__}{str(data)}"
+        return f"{self.__class__.__name__}{str(self.fields)}"
 
     def save(self):
-        pass
+        self.conn.hset(self.key, mapping=self.fields)
 
     def create(self, **kwargs):
         pass
 
-    class Meta:
-        pass
+    @property
+    def key_prefix(self) -> str:
+        meta = getattr(self, "Meta", None)
+        if meta:
+            key_prefix = getattr(meta, "key_prefix", self.__class__.__name__.lower())
+        else:
+            key_prefix = self.__class__.__name__.lower()
+        return key_prefix
+
+    @property
+    def key(self) -> str:
+        prefix = self.key_prefix
+        keys = self.conn.keys(f"{prefix}:*")
+        ids = [int(key.split(":")[-1]) for key in keys]
+        new_id = max(ids) + 1 if ids else 1
+        return f"{prefix}:{new_id}"
+
+    @property
+    def conn(self) -> StrictRedis:
+        return DEFAULT_CONNECTION[0]
+
+    @property
+    def fields(self):
+        data = {}
+        for k in self.keys:
+            data[k] = getattr(self, k)
+        return data
