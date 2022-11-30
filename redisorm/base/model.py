@@ -36,7 +36,13 @@ class BaseModel(metaclass=ModelMeta):
         return str(self)
 
     def save(self, ex: int = 0) -> int:
-        self.class_var.conn.hset(self.key, mapping=self.fields)
+        save_data = {}
+        for k, v in self.fields.items():
+            if isinstance(v, bool):
+                save_data[k] = '1' if v else ''
+            else:
+                save_data[k] = v
+        self.class_var.conn.hset(self.key, mapping=save_data)
         if ex:
             self.class_var.conn.expire(self.key, ex)
         return self.record_id

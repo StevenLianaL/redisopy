@@ -5,19 +5,28 @@ from redisorm.base.field import BaseField
 
 @dataclass
 class BooleanField(BaseField):
-    pass
+
+    def from_redis_to_py(self, value):
+        print('bool turn')
+        return bool(value)
 
 
 @dataclass
 class StringField(BaseField):
-    pass
+
+    def from_redis_to_py(self, value):
+        return str(value)
 
 
 @dataclass
 class IntField(BaseField):
-    pass
+
+    def from_redis_to_py(self, value):
+        return int(value)
 
 
 @dataclass
 class FloatField(BaseField):
-    pass
+
+    def from_redis_to_py(self, value):
+        return float(value)

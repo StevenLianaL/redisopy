@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Any
 
@@ -20,7 +21,11 @@ class BaseField:
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        return getattr(instance, self.storage_name, None)
+        return self.from_redis_to_py(getattr(instance, self.storage_name, ''))
 
     def __set__(self, instance, value):
         setattr(instance, self.storage_name, value)
+
+    @abstractmethod
+    def from_redis_to_py(self, value):
+        return NotImplemented
