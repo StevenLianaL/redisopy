@@ -7,7 +7,12 @@ class ModelMeta(type):
         for key, value in attrs.items():
             if isinstance(value, BaseField):
                 setattr(cls, key, value)
+        attrs["class_var"] = ModelClassVar(cls_name=name, meta=attrs.get("Meta", None))
         return super().__new__(cls, name, bases, attrs)
+
+    class Meta:
+        # key_prefix
+        pass
 
 
 class BaseModel(metaclass=ModelMeta):
@@ -16,14 +21,10 @@ class BaseModel(metaclass=ModelMeta):
     @property 标记的都是实例变量
     """
     class_var = None
+    _id: int = None
     _key: str = ""  # redis instance key
 
-    class Meta:
-        # key_prefix
-        pass
-
     def __init__(self, **kwargs):
-        self.class_var = ModelClassVar(cls=self.__class__, meta=getattr(self, "Meta", None))
         for key, value in kwargs.items():
             self.class_var.keys.add(key)
             setattr(self, key, value)
@@ -31,24 +32,37 @@ class BaseModel(metaclass=ModelMeta):
     def __str__(self):
         return f"{self.__class__.__name__}{str(self.fields)}"
 
+    def __repr__(self):
+        return str(self)
+
     def save(self, ex: int = 0):
         self.class_var.conn.hset(self.key, mapping=self.fields)
         if ex:
             self.class_var.conn.expire(self.key, ex)
 
+    def delete(self):
+        self.class_var.conn.delete(self.key)
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, value: int):
+        self._id = value
+
     @property
     def key(self) -> str:
         if not self._key:
             prefix = self.class_var.key_prefix
-            keys = self.class_var.conn.keys(f"{prefix}*")
-            ids = [int(key.split(":")[-1]) for key in keys]
-            new_id = max(ids) + 1 if ids else 1
-            self._key = f"{prefix}:{new_id}"
+            if self.id:
+                self._key = f"{prefix}{self.id}"
+            else:
+                keys = self.class_var.conn.keys(f"{prefix}*")
+                ids = [int(key.split(":")[-1]) for key in keys]
+                self.id = max(ids) + 1 if ids else 1
+                self._key = f"{prefix}{self.id}"
         return self._key
-
-    @key.setter
-    def key(self, value: str):
-        self._key = value
 
     @property
     def fields(self):

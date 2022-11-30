@@ -10,15 +10,18 @@ from redisorm.connection import DEFAULT_CONNECTION
 @dataclass
 class ModelClassVar:
     """Model class level var"""
-    cls: Any = None
+    cls_name: str = ""
     meta: Any = None
     keys: Set[str] = field(default_factory=set)
 
+    def __post_init__(self):
+        self.keys.add("id")
+
     def __hash__(self):
-        return hash(self.cls, random.randint(0, 100))
+        return hash(self.cls_name, random.randint(0, 100))
 
     def __eq__(self, other):
-        return self.cls == other.cls
+        return self.cls_name == other.cls_name
 
     @property
     def conn(self) -> StrictRedis:
@@ -28,7 +31,7 @@ class ModelClassVar:
     @property
     def key_prefix(self) -> str:
         if self.meta:
-            key_prefix = getattr(self.meta, "key_prefix", self.cls.__name__.lower())
+            key_prefix = getattr(self.meta, "key_prefix", self.cls_name.lower())
         else:
-            key_prefix = f"{self.cls.__name__.lower()}:"
+            key_prefix = f"{self.cls_name.lower()}:"
         return key_prefix
