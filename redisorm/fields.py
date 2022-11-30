@@ -7,7 +7,6 @@ from redisorm.base.field import BaseField
 class BooleanField(BaseField):
 
     def from_redis_to_py(self, value):
-        print('bool turn')
         return bool(value)
 
 
