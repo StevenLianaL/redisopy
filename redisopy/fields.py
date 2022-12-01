@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from redisopy.base.field import BaseField
 
 
-@dataclass
 class BooleanField(BaseField):
+    field_type = bool
 
     def from_redis_to_py(self, value):
         return bool(value)
@@ -13,22 +13,22 @@ class BooleanField(BaseField):
         return '1' if value else ''
 
 
-@dataclass
 class StringField(BaseField):
+    field_type = str
 
     def from_redis_to_py(self, value):
         return str(value)
 
 
-@dataclass
 class IntField(BaseField):
+    field_type = int
 
     def from_redis_to_py(self, value):
         return int(value)
 
 
-@dataclass
 class FloatField(BaseField):
+    field_type = float
 
     def from_redis_to_py(self, value):
         return float(value)

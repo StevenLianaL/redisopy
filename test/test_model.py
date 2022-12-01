@@ -1,6 +1,16 @@
+from redisopy.base.field import BaseField
 from redisopy.connection import connect
 from redisopy.fields import StringField, IntField, BooleanField
 from redisopy.models import Model
+
+
+class Person(Model):
+    name = StringField()
+    age = IntField()
+    is_active = BooleanField()
+
+    class Meta:
+        key_prefix = "UpUp:person:"
 
 
 class Person2(Model):
@@ -15,14 +25,6 @@ connect(db=3)
 
 
 def test_use_model():
-    class Person(Model):
-        name = StringField()
-        age = IntField()
-        is_active = BooleanField()
-
-        class Meta:
-            key_prefix = "UpUp:person:"
-
     class PersonWithId(Model):
         id = IntField()
         name = StringField()
@@ -54,10 +56,15 @@ def test_get_instance():
     print(person2)
 
 
-def test_bool():
-    key = "test_bool"
-    conn = connect(db=3)
-    conn.set(key, 1)
-    for val in [1, 0, '']:
-        conn.set(key, val)
-        print(conn.get(key), bool(conn.get(key)))
+def test_type_check():
+    class Float2Field(BaseField):
+        field_type = float
+
+    class Person4(Model):
+        name = StringField()
+        age = IntField()
+        is_active = BooleanField()
+        height = Float2Field()
+
+    person = Person4(name='test', age=99, is_active=True, height=1.8)
+    person.save()
