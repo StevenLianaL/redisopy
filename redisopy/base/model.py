@@ -84,5 +84,5 @@ class BaseModel(metaclass=ModelMeta):
     def redis_data(self):
         data = {}
         for k, v in self.class_var.model_fields.items():
-            data[k] = v.from_py_to_redis(getattr(self, k))
+            data[k] = v.validator.from_py_to_redis(getattr(self, k))
         return data

@@ -1,7 +1,3 @@
-from abc import abstractmethod
-from dataclasses import dataclass
-from typing import ClassVar, Any
-
 from redisopy.errors import TypeNotMatchError
 from redisopy.utils.validation import TypeValidator
 
@@ -33,16 +29,10 @@ class BaseField(metaclass=FieldMeta):
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        return self.from_redis_to_py(getattr(instance, self.storage_name, ''))
+        return self.validator.from_redis_to_py(getattr(instance, self.storage_name, ''))
 
     def __set__(self, instance, value):
-        if not self.validator.is_true_type(value):
-            raise TypeNotMatchError(f"{value} is type {type(value)}, not {self.field_type}")
-        setattr(instance, self.storage_name, value)
-
-    @abstractmethod
-    def from_redis_to_py(self, value):
-        return NotImplemented
-
-    def from_py_to_redis(self, value):
-        return str(value)
+        try:
+            setattr(instance, self.storage_name, self.validator.from_redis_to_py(value))
+        except ValueError:
+            raise TypeNotMatchError(f"Type not match. Expect {self.field_type}, but got {type(value)}")
