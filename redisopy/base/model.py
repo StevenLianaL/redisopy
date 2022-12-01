@@ -1,9 +1,9 @@
 from redisopy.base.field import BaseField
+from redisopy.errors import CannotOverwriteError
 from redisopy.utils.model_var import ModelClassVar
 
 
 class ModelMeta(type):
-    model_fields = {}
 
     def __new__(cls, name, bases, attrs):
         attrs["class_var"] = ModelClassVar(cls_name=name, meta=attrs.get("Meta", None))
@@ -11,6 +11,7 @@ class ModelMeta(type):
             if isinstance(value, BaseField):
                 setattr(cls, key, value)
                 attrs["class_var"].model_fields[key] = value
+                attrs["class_var"].keys.add(key)
         return super().__new__(cls, name, bases, attrs)
 
     class Meta:
@@ -24,12 +25,11 @@ class BaseModel(metaclass=ModelMeta):
     @property 标记的都是实例变量
     """
     class_var = None
-    _record_id: int = None
+    _record_id: int = None  # key 中的 id, 如果 model 有 id 字段，那么就是 id 字段的值。
     _key: str = ""  # redis instance key
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
-            self.class_var.keys.add(key)
             setattr(self, key, value)
 
     def __str__(self):
@@ -38,7 +38,10 @@ class BaseModel(metaclass=ModelMeta):
     def __repr__(self):
         return str(self)
 
-    def save(self, ex: int = 0) -> int:
+    def save(self, ex: int = 0, is_override: bool = False) -> int:
+        if getattr(self, "id", None) and (not is_override):
+            if self.class_var.conn.exists(self.key):
+                raise CannotOverwriteError("Cannot overwrite the data in redis. If want, set is_override=True")
         self.class_var.conn.hset(self.key, mapping=self.redis_data)
         if ex:
             self.class_var.conn.expire(self.key, ex)
@@ -49,7 +52,9 @@ class BaseModel(metaclass=ModelMeta):
 
     @property
     def record_id(self):
-        return self._record_id
+        """如果 model 有 id 字段，那么就是 id 字段的值; 否则就通过 _record_id 来生成"""
+        db_id = getattr(self, "id", None)
+        return db_id if db_id else self._record_id
 
     @record_id.setter
     def record_id(self, value: int):

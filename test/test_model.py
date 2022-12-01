@@ -11,11 +11,6 @@ class Person2(Model):
         key_prefix = "UpUp:person2:"
 
 
-class Person3(Model):
-    name = StringField()
-    age = IntField()
-
-
 connect(db=3)
 
 
@@ -28,14 +23,19 @@ def test_use_model():
         class Meta:
             key_prefix = "UpUp:person:"
 
+    class PersonWithId(Model):
+        id = IntField()
+        name = StringField()
+        age = IntField()
+
     person = Person(name='John', age=20, is_active=True)
     person.save()
     person2 = Person(name='John', age=20, is_active=False)
     person2.save()
     person2 = Person2(name='John', age=20)
     person2.save()
-    person3 = Person3(name='John', age=20)
-    person3.save()
+    person3 = PersonWithId(name='John Has id', age=20, id=1)
+    person3.save(is_override=True)
     rows = Person.filter()
     for r in rows:
         print(r)
