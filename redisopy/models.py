@@ -1,7 +1,7 @@
 from typing import Set
 
-from redisorm.base.model import BaseModel
-from redisorm.errors import NoSuchIdError
+from redisopy.base.model import BaseModel
+from redisopy.errors import NoSuchIdError
 
 
 class Model(BaseModel):

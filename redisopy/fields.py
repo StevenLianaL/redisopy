@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from redisorm.base.field import BaseField
+from redisopy.base.field import BaseField
 
 
 @dataclass

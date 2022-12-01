@@ -7,7 +7,7 @@ with open("requirements.txt", "r", encoding='utf8') as fh:
     requires = fh.read().replace('==', '>=')
 
 setuptools.setup(
-    name="redisorm",
+    name="redisopy",
     version="0.0.1",
     author="Steven Wang",
     author_email="brightstar8284@icloud.com",

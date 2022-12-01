@@ -1,6 +1,6 @@
-from redisorm.connection import connect
-from redisorm.fields import StringField, IntField, BooleanField
-from redisorm.models import Model
+from redisopy.connection import connect
+from redisopy.fields import StringField, IntField, BooleanField
+from redisopy.models import Model
 
 
 class Person2(Model):

@@ -1,5 +1,5 @@
-from redisorm.base.field import BaseField
-from redisorm.utils.model_var import ModelClassVar
+from redisopy.base.field import BaseField
+from redisopy.utils.model_var import ModelClassVar
 
 
 class ModelMeta(type):

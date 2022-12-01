@@ -4,7 +4,7 @@ from typing import Set, Any
 
 from redis.client import StrictRedis
 
-from redisorm.connection import DEFAULT_CONNECTION
+from redisopy.connection import DEFAULT_CONNECTION
 
 
 @dataclass
