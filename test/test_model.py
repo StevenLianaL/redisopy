@@ -1,5 +1,7 @@
+import pendulum
+
 from redisopy.connection import connect
-from redisopy.fields import StringField, IntField, BooleanField
+from redisopy.fields import StringField, IntField, BooleanField, DatetimeField
 from redisopy.models import Model
 
 
@@ -53,3 +55,13 @@ def test_get_instance():
     person.save()
     person2 = Person2.get_by_id(r_id=person.record_id)
     print(person2)
+
+
+def test_time():
+    class PersonWithTime(Model):
+        name = StringField()
+        age = IntField()
+        time = DatetimeField()
+
+    person = PersonWithTime(name='John', age=20, time=pendulum.now())
+    person.save()

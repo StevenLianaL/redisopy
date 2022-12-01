@@ -1,4 +1,5 @@
 from redisopy.base.field import BaseField
+from redisopy.utils.alias import ForkDatetime
 
 
 class BooleanField(BaseField):
@@ -15,3 +16,7 @@ class IntField(BaseField):
 
 class FloatField(BaseField):
     field_type = float
+
+
+class DatetimeField(BaseField):
+    field_type = ForkDatetime

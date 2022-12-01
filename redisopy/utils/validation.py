@@ -1,5 +1,7 @@
 import inspect
 
+import pendulum
+
 
 class TypeValidator(object):
     """Validate/Convert that the value is of the correct type."""
@@ -30,6 +32,9 @@ class TypeValidator(object):
     def from_py_to_redis_bool(self, value):
         return '1' if value else ''
 
+    def from_py_to_redis_fork_datetime(self, value):
+        return value.format('YYYY-MM-DD HH:mm:ss')
+
     def from_redis_to_py_float(self, value):
         return float(value)
 
@@ -41,3 +46,8 @@ class TypeValidator(object):
 
     def from_redis_to_py_bool(self, value):
         return bool(value)
+
+    def from_redis_to_py_fork_datetime(self, value):
+        if isinstance(value, pendulum.DateTime):
+            return value
+        return pendulum.parse(value, strict=False)
