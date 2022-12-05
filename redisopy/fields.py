@@ -1,5 +1,5 @@
 from redisopy.base.field import BaseField
-from redisopy.utils.alias import ForkDatetime
+from redisopy.utils.alias import ForkDatetime, JsonStr
 
 
 class BooleanField(BaseField):
@@ -20,3 +20,7 @@ class FloatField(BaseField):
 
 class DatetimeField(BaseField):
     field_type = ForkDatetime
+
+
+class JSONField(BaseField):
+    field_type = JsonStr

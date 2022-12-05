@@ -11,3 +11,5 @@
   - Add hash actions
 - 2022-12-05: v0.0.6
   - use utc in datetime
+- 2022-12-05: v0.0.7
+  - Add JSONField

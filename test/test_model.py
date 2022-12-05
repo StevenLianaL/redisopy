@@ -1,7 +1,7 @@
 import pendulum
 
 from redisopy.base.connection import connect
-from redisopy.fields import StringField, IntField, BooleanField, DatetimeField
+from redisopy.fields import StringField, IntField, BooleanField, DatetimeField, JSONField
 from redisopy.models import Model
 
 
@@ -71,3 +71,20 @@ def test_time():
     )
     user.save(is_override=True)
     print(user)
+
+
+def test_json_field():
+    class User(Model):
+        id = IntField()
+        info = JSONField()
+
+        class Meta:
+            key_prefix = f"user:"
+
+    user = User(
+        id=1, info={'a': 1, 'b': 2}
+    )
+    user.save(is_override=True)
+    print(user, user.fields)
+    u = User.get_by_id(1)
+    print(u)

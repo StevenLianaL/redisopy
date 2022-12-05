@@ -1,4 +1,5 @@
 import inspect
+import json
 
 import pendulum
 
@@ -35,6 +36,9 @@ class TypeValidator(object):
     def from_py_to_redis_fork_datetime(self, value):
         return value.in_timezone('UTC').format('YYYY-MM-DD HH:mm:ss')
 
+    def from_py_to_redis_json_str(self, value):
+        return json.dumps(value, ensure_ascii=False)
+
     def from_redis_to_py_float(self, value):
         return float(value)
 
@@ -51,3 +55,8 @@ class TypeValidator(object):
         if isinstance(value, pendulum.DateTime):
             return value.in_tz('UTC')
         return pendulum.parse(value, strict=False, tz='UTC')
+
+    def from_redis_to_py_json_str(self, value):
+        if isinstance(value, str):
+            return json.loads(value)
+        return value
