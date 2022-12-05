@@ -56,10 +56,18 @@ def test_get_instance():
 
 
 def test_time():
-    class PersonWithTime(Model):
-        name = StringField()
-        age = IntField()
-        time = DatetimeField()
+    class UserOnlinePeriods(Model):
+        id = IntField()  # 用户id
+        total = IntField()
+        year = IntField()
+        month = IntField()
+        last_action_time = DatetimeField()
 
-    person = PersonWithTime(name='John', age=20, time=pendulum.now())
-    person.save()
+        class Meta:
+            key_prefix = f"online:"
+
+    user = UserOnlinePeriods(
+        id=1, total=1, year=1, month=1, last_action_time=pendulum.now(tz='Asia/Shanghai')
+    )
+    user.save(is_override=True)
+    print(user)

@@ -33,7 +33,7 @@ class TypeValidator(object):
         return '1' if value else ''
 
     def from_py_to_redis_fork_datetime(self, value):
-        return value.format('YYYY-MM-DD HH:mm:ss')
+        return value.in_timezone('UTC').format('YYYY-MM-DD HH:mm:ss')
 
     def from_redis_to_py_float(self, value):
         return float(value)
@@ -49,5 +49,5 @@ class TypeValidator(object):
 
     def from_redis_to_py_fork_datetime(self, value):
         if isinstance(value, pendulum.DateTime):
-            return value
-        return pendulum.parse(value, strict=False)
+            return value.in_tz('UTC')
+        return pendulum.parse(value, strict=False, tz='UTC')
