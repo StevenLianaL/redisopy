@@ -6,7 +6,7 @@ connect(db=3)
 
 def test_list():
     redis_list = RedisList('abc')
-    redis_list.clear()
+    # redis_list.clear()
     for i in 'abcde':
         redis_list.append(i)
     redis_list[0] = 'e'

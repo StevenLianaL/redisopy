@@ -14,7 +14,10 @@ class RedisList(RedisBaseContainer, UserList):
     """
 
     def init_redis_value(self):
-        self.data = self.lrange()
+        if self.is_init:
+            self.data = self.lrange()
+        else:
+            self.data = []
 
     def __setitem__(self, key, value):
         self.conn.conn.lset(self.key, key, value)

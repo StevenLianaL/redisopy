@@ -4,13 +4,16 @@ from redisopy.containers.base import RedisBaseContainer
 
 
 class RedisSet(RedisBaseContainer, MutableSet):
-    data = {}
+    data = set()
     """
     用于操作 redis set，重写其所有可变序列方法。
     """
 
     def init_redis_value(self):
-        self.data = self.smembers()
+        if self.is_init:
+            self.data = self.smembers()
+        else:
+            self.data = set()
 
     def __contains__(self, item):
         return item in self.data

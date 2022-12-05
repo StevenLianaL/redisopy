@@ -9,8 +9,13 @@ class RedisBaseContainer:
     """"""
     conn = ConnMixin()
 
-    def __init__(self, key: str):
+    def __init__(self, key: str, is_init: bool = False):
+        """
+        :param key:
+        :param is_init: if not, not load data: Only update, not read
+        """
         self.key = key
+        self.is_init = is_init
         try:
             self.init_redis_value()
         except ResponseError as e:
