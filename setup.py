@@ -8,13 +8,13 @@ with open("requirements.txt", "r", encoding='utf8') as fh:
 
 setuptools.setup(
     name="redisopy",
-    version="0.0.2",
+    version="0.0.3",
     author="Steven Wang",
     author_email="brightstar8284@icloud.com",
     description="python redis orm",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    # url="https://github.com/StevenLianaL/-",
+    url="https://github.com/StevenLianaL/redisopy",
     packages=setuptools.find_packages(exclude=["tests*"]),
     install_requires=requires,
     classifiers=[
