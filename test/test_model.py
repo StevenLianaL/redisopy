@@ -1,6 +1,6 @@
 import pendulum
 
-from redisopy.connection import connect
+from redisopy.base.connection import connect
 from redisopy.fields import StringField, IntField, BooleanField, DatetimeField
 from redisopy.models import Model
 
@@ -34,8 +34,6 @@ def test_use_model():
     person = Person(name='John', age=20, is_active=True)
     person.save()
     person2 = Person(name='John', age=20, is_active=False)
-    person2.save()
-    person2 = Person2(name='John', age='-')
     person2.save()
     person3 = PersonWithId(name='John Has id', age=20, id=1)
     person3.save(is_override=True)

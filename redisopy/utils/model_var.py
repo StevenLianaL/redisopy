@@ -2,13 +2,11 @@ import random
 from dataclasses import dataclass, field
 from typing import Set, Any
 
-from redis.client import StrictRedis
-
-from redisopy.connection import DEFAULT_CONNECTION
+from redisopy.base.mixin import ConnMixin
 
 
 @dataclass
-class ModelClassVar:
+class ModelClassVar(ConnMixin):
     """Model class level var"""
     cls_name: str = ""
     meta: Any = None
@@ -22,14 +20,9 @@ class ModelClassVar:
         return self.cls_name == other.cls_name
 
     @property
-    def conn(self) -> StrictRedis:
-        """Get alive redis connection by connect"""
-        return DEFAULT_CONNECTION[0]
-
-    @property
     def key_prefix(self) -> str:
         if self.meta:
-            key_prefix = getattr(self.meta, "key_prefix", self.cls_name.lower())
+            key_prefix = getattr(self.meta, "key_prefix", self.cls_name)
         else:
-            key_prefix = f"{self.cls_name.lower()}:"
+            key_prefix = f"{self.cls_name}:"
         return key_prefix
