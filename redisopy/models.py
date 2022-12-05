@@ -44,3 +44,18 @@ class Model(BaseModel):
             return cls(**row)
         else:
             raise NoSuchIdError(f"{cls.class_var.cls_name} No such id: {r_id}")
+
+    def hset(self, key, value):
+        self.class_var.conn.hset(self.key, key, value)
+        setattr(self, key, value)
+
+    def hincrease(self, key, value: int = 1):
+        self.class_var.conn.hincrby(self.key, key, value)
+        setattr(self, key, getattr(self, key) + value)
+
+    def hincrease_float(self, key, value: float = 1.0):
+        self.class_var.conn.hincrbyfloat(self.key, key, value)
+        setattr(self, key, getattr(self, key) + value)
+
+    def expire(self, ex: int):
+        self.class_var.conn.expire(self.key, ex)
