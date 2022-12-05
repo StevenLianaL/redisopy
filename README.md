@@ -7,3 +7,5 @@
   - Add redis set and list
 - 2022-12-05: v0.0.4
   - Add is_init param to only update, when not read
+- 2022-12-05: v0.0.5
+  - Add hash actions

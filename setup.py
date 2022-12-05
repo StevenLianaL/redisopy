@@ -8,7 +8,7 @@ with open("requirements.txt", "r", encoding='utf8') as fh:
 
 setuptools.setup(
     name="redisopy",
-    version="0.0.4",
+    version="0.0.5",
     author="Steven Wang",
     author_email="brightstar8284@icloud.com",
     description="python redis orm",
